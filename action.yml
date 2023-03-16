@@ -1,0 +1,79 @@
+name: Bake Time
+
+inputs:
+  delay-hours:
+    description: How many hours before pull requests have finished baking
+    default: 24
+    required: false
+  check-name:
+    description: The name of the check that is used to block baking pull requests, recommend "Baking pull request..."
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+  - name: "Failing check to enforce bake time"
+    if: github.event_name == 'pull_request'
+    shell: bash
+    run: |
+      echo "::error title="Baking pull request..."::This pull request will be delayed ${{ inputs.delay-hours }} hours until the bake time is over"
+      exit 1
+
+  - name: Finish baking outstanding pull requests
+    if: github.event_name != 'pull_request' # For any other invocations use the finish baking workflow. e.g. workflow_dispatch or schedule
+    uses: actions/github-script@v6.4.0
+    with:
+      script: |
+        const delayHours = ${{ inputs.delay-hours }};
+        const millisInAnHour = 60 * 60 * 1000;
+        const delayMilliseconds = delayHours * millisInAnHour;
+
+        // Only check pull requests with the label
+        const { data: pullRequests } = await github.rest.pulls.list({
+          owner: context.repo.owner,
+          repo: context.repo.repo,
+          state: 'open',
+        });
+
+        const now = new Date();
+        for (const pr of pullRequests) {
+          const updatedAt = new Date(pr.updated_at);
+
+          const { data: checkRuns } = await github.rest.checks.listForRef({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            ref: pr.head.sha
+          });
+
+          const bakeTimeCheckRun = checkRuns.check_runs.filter(run => run.name === '${{ inputs.check-name }}')[0];
+          if (!bakeTimeCheckRun) {
+            console.log(`No check named '${{ inputs.check-name }}' for PR #${pr.number}.`);
+            for (const run of checkRuns.check_runs) {
+              console.log(`Found ${run.id} named ${run.name} with status ${run.status} for PR #${pr.number}.`)
+            }
+            continue;
+          } 
+
+          // Check if the pull request has not been updated in the specified delay
+          if (now - updatedAt >= delayMilliseconds) {
+            console.log(`Marking status check as successful for PR #${pr.number}.`);
+
+            const { data: checkUpdate } = await github.rest.checks.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              check_run_id: bakeTimeCheckRun.id,
+              status: 'completed',
+              conclusion: 'success',
+              output: {
+                title: 'The bake time delay has passed. This PR can be merged.',
+                summary: 'The required delay is over, and the check has passed'
+              }
+            });
+            console.log(`Check marked as successful for PR #${pr.number}.`);
+            console.log(`Detailed check update message ${JSON.stringify(checkUpdate, undefined, 3)}`);
+          } else {
+            // Logging for pull requests that are still waiting
+            const timeRemaining = (delayMilliseconds - (now - updatedAt)) / (millisInAnHour);
+            console.log(`PR #${pr.number} still needs to wait for ${timeRemaining.toFixed(2)} hours before the delay is over.`);
+          }
+        }
