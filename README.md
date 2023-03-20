@@ -37,6 +37,9 @@ jobs:
 
 # Changelog
 
+## Unreleased
+- Baking pull requests will be updated to 'pending' with a message about how time remains. 
+
 ## v2
 - Combined into a single step where the trigger determines the behavior
 - Stopped using write operations during the 'pull_request' trigger, by default no write permissions are allowed [[link]](https://docs.github.com/en/actions/security-guides/automatic-token-authentication#permissions-for-the-github_token)
