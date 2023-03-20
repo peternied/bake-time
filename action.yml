@@ -86,7 +86,7 @@ runs:
               repo: context.repo.repo,
               check_run_id: bakeTimeCheckRun.id,
               status: 'in_progress',
-              conclusion: null,
+              conclusion: 'action_required',
               output: {
                 title: `Still baking, least ${timeRemaining.toFixed(2)} hours remaining.`,
                 summary: 'This check will pass once the delay is over.'
