@@ -50,7 +50,7 @@ jobs:
 
 # Changelog
 
-## Unreleased
+## v3
 - Baking pull requests will be updated with a message about how time remains. 
 
 ## v2
