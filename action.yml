@@ -1,4 +1,5 @@
 name: Bake Time
+description: Check pull requests have baked before they are merged
 
 inputs:
   delay-hours:
