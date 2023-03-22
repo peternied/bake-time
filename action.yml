@@ -81,14 +81,19 @@ runs:
             const timeRemaining = (delayMilliseconds - (now - updatedAt)) / (millisInAnHour);
             console.log(`Updating pending status check for PR #${pr.number}.`);
 
+            const updateMessage = `${Math.max(timeRemaining.toFixed(0),1)} hours remain.`;
             const { data: checkUpdate } = await github.rest.checks.update({
               owner: context.repo.owner,
               repo: context.repo.repo,
               check_run_id: bakeTimeCheckRun.id,
               status: 'in_progress', // This value cannot be modified once completed, leaving it in if GitHub's APIs support it in the future
-              conclusion: 'action_required',
+              conclusion: 'neutral',
+              annotations: [{
+                annotation_level: 'notice',
+                message: updateMessage,
+              }],
               output: {
-                title: `Baking >${timeRemaining.toFixed(2)} hours remain.`,
+                title: updateMessage,
                 summary: 'This check will pass once the delay is over.'
               }
             });
