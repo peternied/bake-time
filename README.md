@@ -38,10 +38,10 @@ jobs:
 ## Example:
 
 ### Pull request baking start
-![image](https://user-images.githubusercontent.com/2754967/226928503-4cd6c95f-80fe-4a33-8eeb-37147e18cd29.png)
+![Bake time / Baking pull request... (pull_request)](https://user-images.githubusercontent.com/2754967/226928503-4cd6c95f-80fe-4a33-8eeb-37147e18cd29.png)
 
 ### Update while baking
-![image](https://user-images.githubusercontent.com/2754967/226928759-1074a2e0-4da9-4655-8706-ea052ec9392e.png)
+![Bake time / Baking pull request... (pull_request) Failing after 3s — 2 hours remain.](https://user-images.githubusercontent.com/2754967/226933188-383f284b-2cb7-4204-ba21-e17475e31a6d.png)
 
 ### Baking completed
 ![Bake time / Baking pull request... (pull_request) Successful in 5s — The bake time delay has passe](https://user-images.githubusercontent.com/2754967/226927082-66ddea37-476a-4e9e-bc4a-53129ee6156f.png)
