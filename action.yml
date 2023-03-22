@@ -88,7 +88,7 @@ runs:
               status: 'in_progress', // This value cannot be modified once completed, leaving it in if GitHub's APIs support it in the future
               conclusion: 'action_required',
               output: {
-                title: `Still baking, least ${timeRemaining.toFixed(2)} hours remaining.`,
+                title: `Baking >${timeRemaining.toFixed(2)} hours remain.`,
                 summary: 'This check will pass once the delay is over.'
               }
             });
