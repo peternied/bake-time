@@ -38,7 +38,7 @@ jobs:
 # Changelog
 
 ## Unreleased
-- Baking pull requests will be updated to 'pending' with a message about how time remains. 
+- Baking pull requests will be updated with a message about how time remains. 
 
 ## v2
 - Combined into a single step where the trigger determines the behavior
