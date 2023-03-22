@@ -52,7 +52,12 @@ runs:
               console.log(`Found ${run.id} named ${run.name} with status ${run.status} for PR #${pr.number}.`)
             }
             continue;
-          } 
+          }
+
+          if (bakeTimeCheckRun.conclusion === "success") {
+            console.log(`PR #${pr.number} has been marked as completed.`);
+            continue;
+          }
 
           // Check if the pull request has not been updated in the specified delay
           if (now - updatedAt >= delayMilliseconds) {
@@ -74,6 +79,22 @@ runs:
           } else {
             // Logging for pull requests that are still waiting
             const timeRemaining = (delayMilliseconds - (now - updatedAt)) / (millisInAnHour);
-            console.log(`PR #${pr.number} still needs to wait for ${timeRemaining.toFixed(2)} hours before the delay is over.`);
+            console.log(`Updating pending status check for PR #${pr.number}.`);
+
+            const updateMessage = `${Math.max(timeRemaining.toFixed(0),1)} hours remain.`;
+            const { data: checkUpdate } = await github.rest.checks.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              check_run_id: bakeTimeCheckRun.id,
+              status: 'in_progress', // This value cannot be modified once completed, leaving it in if GitHub's APIs support it in the future
+              conclusion: 'failure',
+              output: {
+                title: updateMessage,
+                summary: 'This check will pass once the delay is over.'
+              }
+            });
+
+            console.log(`PR #${pr.number} needs to wait for ${timeRemaining.toFixed(2)} hours before the delay is over.`);
+            console.log(`Detailed check update message ${JSON.stringify(checkUpdate, undefined, 3)}`);
           }
         }
