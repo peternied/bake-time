@@ -87,11 +87,7 @@ runs:
               repo: context.repo.repo,
               check_run_id: bakeTimeCheckRun.id,
               status: 'in_progress', // This value cannot be modified once completed, leaving it in if GitHub's APIs support it in the future
-              conclusion: 'neutral',
-              annotations: [{
-                annotation_level: 'notice',
-                message: updateMessage,
-              }],
+              conclusion: 'failure',
               output: {
                 title: updateMessage,
                 summary: 'This check will pass once the delay is over.'
