@@ -1,6 +1,10 @@
 name: Bake Time
 description: Check pull requests have baked before they are merged
 
+branding:
+  icon: 'watch'
+  color: 'green'
+
 inputs:
   delay-hours:
     description: How many hours before pull requests have finished baking
