@@ -50,56 +50,60 @@ runs:
             ref: pr.head.sha
           });
 
-          const bakeTimeCheckRun = checkRuns.check_runs.filter(run => run.name === '${{ inputs.check-name }}')[0];
-          if (!bakeTimeCheckRun) {
+          const bakeTimeCheckRuns = checkRuns.check_runs.filter(run => run.name === '${{ inputs.check-name }}');
+          if (bakeTimeCheckRuns.length < 1) {
             console.log(`No check named '${{ inputs.check-name }}' for PR #${pr.number}.`);
             for (const run of checkRuns.check_runs) {
               console.log(`Found ${run.id} named ${run.name} with status ${run.status} for PR #${pr.number}.`)
             }
             continue;
+          } else if (bakeTimeCheckRuns.length > 1) {
+              console.log(`Found ${bakeTimeCheckRuns.length} checks named '${{ inputs.check-name }}' for PR #${pr.number}.`)
           }
 
-          if (bakeTimeCheckRun.conclusion === "success") {
-            console.log(`PR #${pr.number} has been marked as completed.`);
-            continue;
-          }
-
-          // Check if the pull request has not been updated in the specified delay
-          if (now - updatedAt >= delayMilliseconds) {
-            console.log(`Marking status check as successful for PR #${pr.number}.`);
-
-            const { data: checkUpdate } = await github.rest.checks.update({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              check_run_id: bakeTimeCheckRun.id,
-              status: 'completed',
-              conclusion: 'success',
-              output: {
-                title: 'The bake time delay has passed. This PR can be merged.',
-                summary: 'The required delay is over, and the check has passed'
-              }
-            });
-            console.log(`Check marked as successful for PR #${pr.number}.`);
-            console.log(`Detailed check update message ${JSON.stringify(checkUpdate, undefined, 3)}`);
-          } else {
-            // Logging for pull requests that are still waiting
-            const timeRemaining = (delayMilliseconds - (now - updatedAt)) / (millisInAnHour);
-            console.log(`Updating pending status check for PR #${pr.number}.`);
-
-            const updateMessage = `${Math.max(timeRemaining.toFixed(0),1)} hours remain.`;
-            const { data: checkUpdate } = await github.rest.checks.update({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              check_run_id: bakeTimeCheckRun.id,
-              status: 'in_progress', // This value cannot be modified once completed, leaving it in if GitHub's APIs support it in the future
-              conclusion: 'failure',
-              output: {
-                title: updateMessage,
-                summary: 'This check will pass once the delay is over.'
-              }
-            });
-
-            console.log(`PR #${pr.number} needs to wait for ${timeRemaining.toFixed(2)} hours before the delay is over.`);
-            console.log(`Detailed check update message ${JSON.stringify(checkUpdate, undefined, 3)}`);
+          for (const bakeTimeCheckRun of bakeTimeCheckRuns) {
+            if (bakeTimeCheckRun.conclusion === "success") {
+              console.log(`PR #${pr.number} check ${bakeTimeCheckRun.id} has been marked as completed.`);
+              continue;
+            }
+  
+            // Check if the pull request has not been updated in the specified delay
+            if (now - updatedAt >= delayMilliseconds) {
+              console.log(`Marking status check ${bakeTimeCheckRun.id} as successful for PR #${pr.number}.`);
+  
+              const { data: checkUpdate } = await github.rest.checks.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                check_run_id: bakeTimeCheckRun.id,
+                status: 'completed',
+                conclusion: 'success',
+                output: {
+                  title: 'The bake time delay has passed. This PR can be merged.',
+                  summary: 'The required delay is over, and the check has passed'
+                }
+              });
+              console.log(`Check ${bakeTimeCheckRun.id} marked as successful for PR #${pr.number}.`);
+              console.log(`Detailed check update message ${JSON.stringify(checkUpdate, undefined, 3)}`);
+            } else {
+              // Logging for pull requests that are still waiting
+              const timeRemaining = (delayMilliseconds - (now - updatedAt)) / (millisInAnHour);
+              console.log(`Updating pending status check ${bakeTimeCheckRun.id} for PR #${pr.number}.`);
+  
+              const updateMessage = `${Math.max(timeRemaining.toFixed(0),1)} hours remain.`;
+              const { data: checkUpdate } = await github.rest.checks.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                check_run_id: bakeTimeCheckRun.id,
+                status: 'in_progress', // This value cannot be modified once completed, leaving it in if GitHub's APIs support it in the future
+                conclusion: 'failure',
+                output: {
+                  title: updateMessage,
+                  summary: 'This check will pass once the delay is over.'
+                }
+              });
+  
+              console.log(`PR #${pr.number} check ${bakeTimeCheckRun.id} needs to wait for ${timeRemaining.toFixed(2)} hours before the delay is over.`);
+              console.log(`Detailed check update message ${JSON.stringify(checkUpdate, undefined, 3)}`);
+            }
           }
         }
