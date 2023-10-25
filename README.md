@@ -29,7 +29,7 @@ jobs:
     name: "Baking pull request..."
     runs-on: ubuntu-latest
     steps:
-    - uses: peternied/bake-time@v3
+    - uses: peternied/bake-time@v3.1
       with:
         check-name: "Baking pull request..."
         delay-hours: 48
@@ -49,6 +49,9 @@ jobs:
 
 
 # Changelog
+
+## v3.1
+- Process multiple checks with matching name, contributor @ngehrsitz
 
 ## v3
 - Baking pull requests will be updated with a message about how time remains. 
