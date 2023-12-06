@@ -10,6 +10,10 @@ inputs:
     description: How many hours before pull requests have finished baking
     default: 24
     required: false
+  ignore-non-push-updates:
+    description: Controls if the bake timer uses the last update to the PR like approvals or the just the last push to calculate the remaining time
+    default: "false"
+    required: false
   check-name:
     description: The name of the check that is used to block baking pull requests, recommend "Baking pull request..."
     required: true
@@ -42,7 +46,11 @@ runs:
 
         const now = new Date();
         for (const pr of pullRequests) {
-          const updatedAt = new Date(pr.updated_at);
+          modificationTime = pr.updated_at;
+          if ('${{ inputs.ignore-non-push-updates }}' == 'true') {
+            modificationTime = pr.head.repo.pushed_at;
+          }
+          const modificationDate = new Date(modificationTime);
 
           const { data: checkRuns } = await github.rest.checks.listForRef({
             owner: context.repo.owner,
@@ -68,7 +76,7 @@ runs:
             }
   
             // Check if the pull request has not been updated in the specified delay
-            if (now - updatedAt >= delayMilliseconds) {
+            if (now - modificationDate >= delayMilliseconds) {
               console.log(`Marking status check ${bakeTimeCheckRun.id} as successful for PR #${pr.number}.`);
   
               const { data: checkUpdate } = await github.rest.checks.update({
@@ -86,7 +94,7 @@ runs:
               console.log(`Detailed check update message ${JSON.stringify(checkUpdate, undefined, 3)}`);
             } else {
               // Logging for pull requests that are still waiting
-              const timeRemaining = (delayMilliseconds - (now - updatedAt)) / (millisInAnHour);
+              const timeRemaining = (delayMilliseconds - (now - modificationDate)) / (millisInAnHour);
               console.log(`Updating pending status check ${bakeTimeCheckRun.id} for PR #${pr.number}.`);
   
               const updateMessage = `${Math.max(timeRemaining.toFixed(0),1)} hours remain.`;
