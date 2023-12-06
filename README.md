@@ -7,6 +7,10 @@ inputs:
     description: How many hours before pull requests have finished baking
     default: 24
     required: false
+  ignore-non-push-updates:
+    description: Controls if the bake timer uses the last update to the PR like approvals or the just the last push to calculate the remaining time
+    default: "false"
+    required: false
   check-name:
     description: The name of the check that is used to block baking pull requests, recommend "Baking pull request..."
     required: true
