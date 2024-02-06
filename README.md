@@ -33,7 +33,7 @@ jobs:
     name: "Baking pull request..."
     runs-on: ubuntu-latest
     steps:
-    - uses: peternied/bake-time@v3.2
+    - uses: peternied/bake-time@v3.3
       with:
         check-name: "Baking pull request..."
         delay-hours: 48
@@ -53,6 +53,9 @@ jobs:
 
 
 # Changelog
+
+## v3.2
+- Add option to ignore non-push updates to PRs, contributor by @ngehrsitz
 
 ## v3.2
 - Option to ignore non-push modifications to the pull request, contributor @ngehrsitz
