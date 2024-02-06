@@ -54,8 +54,8 @@ jobs:
 
 # Changelog
 
-## v3.2
-- Add option to ignore non-push updates to PRs, contributor by @ngehrsitz
+## v3.3
+- Add option to ignore non-push updates to PRs, contributor @ngehrsitz
 
 ## v3.2
 - Option to ignore non-push modifications to the pull request, contributor @ngehrsitz
