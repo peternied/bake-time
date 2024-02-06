@@ -43,12 +43,31 @@ runs:
           repo: context.repo.repo,
           state: 'open',
         });
+        
+        // fetch repo events only once
+        pushEvents = [];
+        if ('${{ inputs.ignore-non-push-updates }}' === 'true') {
+            const { data: repoEvents } = await github.rest.activity.listRepoEvents({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            pushEvents = repoEvents.filter(event => event.type === 'PushEvent');
+        }
 
         const now = new Date();
         for (const pr of pullRequests) {
           modificationTime = pr.updated_at;
-          if ('${{ inputs.ignore-non-push-updates }}' == 'true') {
-            modificationTime = pr.head.repo.pushed_at;
+          if ('${{ inputs.ignore-non-push-updates }}' === 'true') {
+            const prEvents = pushEvents.filter(event => event.payload.ref === 'refs/heads/' + pr.head.ref);
+            lastPushEvent = prEvents.filter(event => event.payload.head === pr.head.sha);
+            if (lastPushEvent.length < 1) {
+                console.log(`No push events found for PR #${pr.number}.`);
+            } else {
+                console.log(`Found ${lastPushEvent.length} push events for PR #${pr.number}.`)
+                lastPushEvent.sort(function(a,b){return new Date(b.created_at) - new Date(a.created_at)});
+                modificationTime = lastPushEvent[0].created_at;
+                console.log(`Using last push event ${modificationTime} for PR #${pr.number}.`);
+            }
           }
           const modificationDate = new Date(modificationTime);
 
