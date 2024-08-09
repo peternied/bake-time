@@ -9,7 +9,7 @@ inputs:
     required: false
   ignore-non-push-updates:
     description: Controls if the bake timer uses the last update to the PR like approvals or the just the date of the merge commit GitHub creates to calculate the remaining time
-    default: "false"
+    default: "true"
     required: false
   check-name:
     description: The name of the check that is used to block baking pull requests, recommend "Baking pull request..."
