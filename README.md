@@ -33,7 +33,7 @@ jobs:
     name: "Baking pull request..."
     runs-on: ubuntu-latest
     steps:
-    - uses: peternied/bake-time@v3.3
+    - uses: peternied/bake-time@v3.4
       with:
         check-name: "Baking pull request..."
         delay-hours: 48
@@ -53,6 +53,12 @@ jobs:
 
 
 # Changelog
+
+After each `v3.x` release, move the floating `v3` tag to the same commit as the new version tag.
+
+## v3.4
+- Pin `actions/github-script` to a full commit SHA for improved action supply-chain safety, contributor @gaiksaya
+- Set `ignore-non-push-updates` default to `true` in `action.yml` and docs
 
 ## v3.3
 - Add option to ignore non-push updates to PRs, contributor @ngehrsitz
