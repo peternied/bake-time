@@ -1,5 +1,11 @@
 # bake-time
-Github actions to add a bake time check / finish pull requests that have fully baked
+
+> [!WARNING]
+> This action has been decommissioned and should be removed from all workflows.
+>
+> Its implementation depended on updating an Actions-created check run from a later workflow run using `GITHUB_TOKEN`. GitHub no longer allows that workflow design, so this action can no longer complete its bake-time check correctly.
+
+This repository is kept only to document the decommissioned action.
 
 ```yaml
 inputs:
@@ -16,45 +22,21 @@ inputs:
     required: true
 ```
 
-## Usage:
+## Status
 
-```yaml
-on:
-  pull_request:
-    types:
-      - opened
-      - synchronize
-  workflow_dispatch:
-  schedule:
-    - cron: '0 */1 * * *' # Runs every 1 hour 
-...
-jobs:
-  baking_pull_request:
-    name: "Baking pull request..."
-    runs-on: ubuntu-latest
-    steps:
-    - uses: peternied/bake-time@v3.4
-      with:
-        check-name: "Baking pull request..."
-        delay-hours: 48
-```
-
-## Example:
-
-### Pull request baking start
-![Bake time / Baking pull request... (pull_request)](https://user-images.githubusercontent.com/2754967/226928503-4cd6c95f-80fe-4a33-8eeb-37147e18cd29.png)
-
-### Update while baking
-![Bake time / Baking pull request... (pull_request) Failing after 3s — 2 hours remain.](https://user-images.githubusercontent.com/2754967/226933188-383f284b-2cb7-4204-ba21-e17475e31a6d.png)
-
-### Baking completed
-![Bake time / Baking pull request... (pull_request) Successful in 5s — The bake time delay has passe](https://user-images.githubusercontent.com/2754967/226927082-66ddea37-476a-4e9e-bc4a-53129ee6156f.png)
+- Decommissioned
+- Not recommended for new or existing workflows
+- Current action behavior is an immediate failure with a deprecation message
 
 
 
 # Changelog
 
 After each `v3.x` release, move the floating `v3` tag to the same commit as the new version tag.
+
+## v3.5
+- Decommission the action because GitHub no longer allows this check-run update workflow design
+- Replace the implementation with an immediate deprecation failure message
 
 ## v3.4
 - Pin `actions/github-script` to a full commit SHA for improved action supply-chain safety, contributor @gaiksaya
